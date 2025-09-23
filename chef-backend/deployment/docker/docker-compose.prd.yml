@@ -1,0 +1,27 @@
+# PRD环境Docker Compose配置
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: chef-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ChefGame2025!@#Root
+      MYSQL_DATABASE: chef_game
+      MYSQL_USER: chef_user
+      MYSQL_PASSWORD: ChefGameUser2025!@#
+      TZ: America/New_York
+    ports:
+      - "3306:3306"
+    volumes:
+      - /data/mysql:/var/lib/mysql
+      - ./mysql/conf:/etc/mysql/conf.d
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - chef-network
+
+
+networks:
+  chef-network:
+    driver: bridge
