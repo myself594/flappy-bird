@@ -12,6 +12,8 @@ vi ~/mysql/conf/my.cnf
 
 vi ~/mysql/docker-compose.yml
 
+cd ~/mysql
+
 docker compose up -d
 
 # 查看容器状态
