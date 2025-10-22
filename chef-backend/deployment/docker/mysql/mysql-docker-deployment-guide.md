@@ -45,9 +45,9 @@ docker compose down -v
 ## ⚙️ 配置说明
 
 ### Docker Compose 配置
-- **容器名**: `chef-mysql`
+- **容器名**: `mysql`
 - **端口映射**: `3306:3306`
-- **数据持久化**: `/data/mysql` 目录
+- **数据持久化**: `~/mysql/data` 目录
 - **字符集**: `utf8mb4_unicode_ci`
 
 ### 数据库账户
@@ -57,8 +57,8 @@ docker compose down -v
 - **数据库名**: `chef_game`
 
 ### 配置文件
-- **MySQL配置**: `mysql/conf/my.cnf`
-- **数据持久化**: `/data/mysql` 目录
+- **MySQL配置**: `~/mysql/conf/my.cnf`
+- **数据持久化**: `~/mysql/data` 目录
 
 ## 🔧 自定义配置
 
@@ -80,17 +80,17 @@ ports:
 ### 数据备份
 ```bash
 # 导出数据库
-docker exec chef-mysql mysqldump -u chef_user -pChefGameUser2025!@# chef_game > backup.sql
+docker exec mysql mysqldump -u chef_user -pChefGameUser2025!@# chef_game > backup.sql
 
 # 导入数据库
-docker exec -i chef-mysql mysql -u chef_user -pChefGameUser2025!@# chef_game < backup.sql
+docker exec -i mysql mysql -u chef_user -pChefGameUser2025!@# chef_game < backup.sql
 ```
 
 ## ⚠️ 注意事项
 
 1. **首次启动**需要等待MySQL初始化完成
-2. **数据持久化**通过 `/data/mysql` 目录挂载，删除容器不会丢失数据
+2. **数据持久化**通过 `~/mysql/data` 目录挂载，删除容器不会丢失数据
 3. **数据库初始化**需要手动执行SQL脚本创建表结构
 4. **生产环境**已使用安全密码配置
 5. **防火墙**确保3306端口可访问
-6. **时区设置**已配置为America/New_York
+6. **时区设置**已配置为UTC
