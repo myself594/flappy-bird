@@ -6,7 +6,7 @@ services:
     container_name: mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ChefGame2025!@#Root
+      MYSQL_ROOT_PASSWORD: Root2025!@#
       MYSQL_DATABASE: chef_game
       MYSQL_USER: chef_user
       MYSQL_PASSWORD: ChefGameUser2025!@#

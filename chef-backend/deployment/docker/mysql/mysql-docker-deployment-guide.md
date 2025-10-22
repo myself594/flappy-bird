@@ -24,7 +24,7 @@ docker compose logs -f mysql
 ### 2. 验证MySQL连接
 ```bash
 # 进入MySQL容器
-docker exec -it chef-mysql mysql -u chef_user -p
+docker exec -it mysql mysql -u chef_user -p
 
 # 输入密码：ChefGameUser2025!@#
 # 验证数据库和表
@@ -51,7 +51,7 @@ docker compose down -v
 - **字符集**: `utf8mb4_unicode_ci`
 
 ### 数据库账户
-- **Root密码**: `ChefGame2025!@#Root`
+- **Root密码**: `Root2025!@#`
 - **应用用户**: `chef_user`
 - **应用密码**: `ChefGameUser2025!@#`
 - **数据库名**: `chef_game`
