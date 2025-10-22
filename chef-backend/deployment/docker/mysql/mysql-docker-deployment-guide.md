@@ -32,7 +32,6 @@ docker exec -it mysql mysql -u chef_user -p
 # 验证数据库和表
 USE chef_game;
 SHOW TABLES;
-SELECT COUNT(*) FROM user;
 ```
 
 ### 3. 停止和清理
