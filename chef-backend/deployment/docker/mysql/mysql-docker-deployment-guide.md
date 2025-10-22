@@ -6,7 +6,7 @@
 ```bash
 cd ~
 
-mkdir ~/mysql/data ~/mysql/conf
+mkdir -p ~/mysql/data ~/mysql/conf
 
 vi ~/mysql/conf/my.cnf
 
