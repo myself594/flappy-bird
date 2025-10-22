@@ -34,6 +34,13 @@ USE chef_game;
 SHOW TABLES;
 ```
 
+检查配置是否生效，比如:
+
+docker exec mysql mysql -uroot -p'Root2025!@#' -e "SHOW VARIABLES LIKE 'lower_case_table_names';"
+
+Variable_name	Value
+lower_case_table_names	1
+
 ### 3. 停止和清理
 ```bash
 # 停止服务
