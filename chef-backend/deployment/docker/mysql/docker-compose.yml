@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: chef-mysql
+    container_name: mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ChefGame2025!@#Root
@@ -14,13 +14,13 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - /data/mysql:/var/lib/mysql
+      - ./mysql/data:/var/lib/mysql
       - ./mysql/conf:/etc/mysql/conf.d
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     networks:
-      - chef-network
+      - mysql-network
 
 
 networks:
-  chef-network:
+  mysql-network:
     driver: bridge

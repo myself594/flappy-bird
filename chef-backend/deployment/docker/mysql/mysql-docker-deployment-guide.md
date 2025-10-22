@@ -4,7 +4,15 @@
 
 ### 1. 启动MySQL容器
 ```bash
-docker compose up -d mysql
+cd ~
+
+mkdir ~/mysql/data ~/mysql/conf
+
+vi ~/mysql/conf/my.cnf
+
+vi ~/mysql/docker-compose.yml
+
+docker compose up -d
 
 # 查看容器状态
 docker compose ps
