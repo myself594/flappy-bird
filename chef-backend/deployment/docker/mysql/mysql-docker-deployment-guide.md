@@ -4,14 +4,13 @@
 
 ### 1. 启动MySQL容器
 ```bash
-# 启动MySQL服务 (注意：在docs/deployment/docker目录下执行)
-docker-compose up -d mysql
+docker compose up -d mysql
 
 # 查看容器状态
-docker-compose ps
+docker compose ps
 
 # 查看MySQL日志
-docker-compose logs -f mysql
+docker compose logs -f mysql
 ```
 
 ### 2. 验证MySQL连接
@@ -29,10 +28,10 @@ SELECT COUNT(*) FROM user;
 ### 3. 停止和清理
 ```bash
 # 停止服务
-docker-compose down
+docker compose down
 
 # 删除数据卷（慎用！会删除所有数据）
-docker-compose down -v
+docker compose down -v
 ```
 
 ## ⚙️ 配置说明
@@ -57,7 +56,7 @@ docker-compose down -v
 
 ### 修改密码
 ```yaml
-# 修改 docker-compose.yml
+# 修改 docker compose.yml
 environment:
   MYSQL_ROOT_PASSWORD: 你的root密码
   MYSQL_PASSWORD: 你的应用密码
@@ -65,7 +64,7 @@ environment:
 
 ### 修改端口
 ```yaml
-# 修改 docker-compose.yml
+# 修改 docker compose.yml
 ports:
   - "3307:3306"  # 宿主机端口:容器端口
 ```
