@@ -18,6 +18,10 @@ scp -i "~/EC2-Common-Key.pem" /home/ubuntu/nginx/ssl/keypass.txt  ubuntu@172.31.
 scp -i "~/EC2-Common-Key.pem" /home/ubuntu/nginx/ssl/ledouyx.com.crt  ubuntu@172.31.18.91:/home/ubuntu/nginx/ssl
 scp -i "~/EC2-Common-Key.pem" /home/ubuntu/nginx/ssl/ledouyx.com.key  ubuntu@172.31.18.91:/home/ubuntu/nginx/ssl
 
+scp -i "~/EC2-Common-Key.pem" /home/ubuntu/nginx/html/google00455fee76a53fb2.html  ubuntu@172.31.18.91:/home/ubuntu/nginx/html
+scp -i "~/EC2-Common-Key.pem" /home/ubuntu/nginx/html/google43d3ed4a225c9c98.html  ubuntu@172.31.18.91:/home/ubuntu/nginx/html
+
+
 
 # Nginx-DB-EC2
 
@@ -61,3 +65,6 @@ cp -r ./dist/* ./nginx/html/
 
 SSH 连接：
 ssh -i "~/Desktop/Projects/EC2-Common-Key.pem" ubuntu@ec2-34-229-156-60.compute-1.amazonaws.com
+
+
+ssh -i "~/Desktop/Projects/EC2-Common-Key.pem" ubuntu@ec2-3-95-198-226.compute-1.amazonaws.com
