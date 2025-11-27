@@ -31,7 +31,7 @@ ssh -i "~/Desktop/Projects//EC2-Common-Key.pem" ubuntu@ec2-54-159-54-177.compute
 
 上传文件：示例
 
-scp -i "~/Desktop/Projects/EC2-Common-Key.pem" ~/Desktop/Projects/EC2-Common-Key.pem ubuntu@ec2-54-159-54-177.compute-1.amazonaws.com:/home/ubuntu/
+scp -i "~/Desktop/Projects/EC2-Common-Key.pem" ~/Desktop/Projects/app-ads.txt ubuntu@ec2-54-159-54-177.compute-1.amazonaws.com:/home/ubuntu/nginx/html/
 
 ## 部署 Nginx
 
