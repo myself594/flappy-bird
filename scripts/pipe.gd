@@ -58,7 +58,10 @@ func setup(gap_center_y: float) -> void:
 	top_cap.offset_right = 45
 	top_cap.offset_bottom = top_height
 	top_collision.position = Vector2(0, top_height / 2.0)
-	top_collision.shape.size = Vector2(80, top_height)
+	# 创建独立的碰撞形状，避免多个管道实例共享同一资源
+	var top_shape = RectangleShape2D.new()
+	top_shape.size = Vector2(80, top_height)
+	top_collision.shape = top_shape
 
 	# 下管道：从间隙下沿到屏幕底部
 	var bottom_y = gap_center_y + half_gap
@@ -73,7 +76,10 @@ func setup(gap_center_y: float) -> void:
 	bottom_cap.offset_right = 45
 	bottom_cap.offset_bottom = 0
 	bottom_collision.position = Vector2(0, bottom_height / 2.0)
-	bottom_collision.shape.size = Vector2(80, bottom_height)
+	# 创建独立的碰撞形状
+	var bottom_shape = RectangleShape2D.new()
+	bottom_shape.size = Vector2(80, bottom_height)
+	bottom_collision.shape = bottom_shape
 
 	# 计分区域放在间隙中间
 	score_area.position = Vector2(0, gap_center_y)
