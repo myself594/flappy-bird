@@ -1,0 +1,81 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, master, 'claude/**']
+  workflow_dispatch:  # 允许手动触发
+
+# 设置 GITHUB_TOKEN 权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 只允许一个并发部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup export templates
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates/4.5.stable
+          mv /root/.local/share/godot/export_templates/4.5.stable/* ~/.local/share/godot/export_templates/4.5.stable/ || true
+
+      - name: Build Web export
+        run: |
+          mkdir -p build/web
+          godot --headless --export-release "Web" build/web/index.html
+
+      - name: Add coi-serviceworker for SharedArrayBuffer support
+        run: |
+          # 下载 coi-serviceworker 解决跨域隔离问题
+          cd build/web
+          wget -q https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/master/coi-serviceworker.js
+          # 在 index.html 的 <head> 中注入 service worker
+          sed -i 's|<head>|<head><script src="coi-serviceworker.js"></script>|' index.html
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Send email notification
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.qq.com
+          server_port: 587
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "[Flappy Bird] 部署通知 - ${{ job.status == 'success' && '成功' || '失败' }}"
+          to: ${{ secrets.SMTP_USER }}
+          from: ${{ secrets.SMTP_USER }}
+          body: |
+            仓库: ${{ github.repository }}
+            分支: ${{ github.ref_name }}
+            状态: ${{ job.status }}
+            提交: ${{ github.sha }}
+
+            ${{ job.status == 'success' && '🎉 游戏已部署到: https://myself594.github.io/flappy-bird' || '❌ 部署失败，请检查 Actions 日志' }}

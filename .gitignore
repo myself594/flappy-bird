@@ -1,0 +1,31 @@
+# Godot 4+ specific ignores
+.godot/
+
+# Godot-specific ignores
+*.translation
+
+# Imported textures and samples
+.import/
+
+# Exported game
+export/
+exports/
+build/
+
+# Mono-specific ignores
+.mono/
+data_*/
+mono_crash.*.json
+
+# System/IDE specific
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# VSCode
+.vscode/
+
+# JetBrains IDEs
+.idea/
