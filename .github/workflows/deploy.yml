@@ -40,7 +40,7 @@ jobs:
         run: |
           # 下载 coi-serviceworker 解决跨域隔离问题
           cd build/web
-          curl -fsSL https://raw.githubusercontent.com/nickvergessen/coi-serviceworker/main/coi-serviceworker.js -o coi-serviceworker.js
+          wget -q https://raw.githubusercontent.com/gzuidhof/coi-serviceworker/master/coi-serviceworker.js
           # 在 index.html 的 <head> 中注入 service worker
           sed -i 's|<head>|<head><script src="coi-serviceworker.js"></script>|' index.html
 
