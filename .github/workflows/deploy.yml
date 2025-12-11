@@ -60,3 +60,22 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Send email notification
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "Flappy Bird 部署${{ job.status == 'success' && '成功' || '失败' }} - ${{ github.ref_name }}"
+          to: ${{ secrets.EMAIL_TO }}
+          from: GitHub Actions
+          body: |
+            仓库: ${{ github.repository }}
+            分支: ${{ github.ref_name }}
+            状态: ${{ job.status }}
+            提交: ${{ github.sha }}
+
+            ${{ job.status == 'success' && '🎉 游戏已部署到: https://myself594.github.io/flappy-bird' || '❌ 部署失败，请检查 Actions 日志' }}
