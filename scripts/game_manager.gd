@@ -85,13 +85,6 @@ func spawn_pipe() -> void:
 	var gap_y = randf_range(gap_min_y, gap_max_y)
 	pipe.setup(gap_y)
 	
-	# 连接碰撞信号
-	pipe.get_node("TopPipe").body_entered.connect(_on_pipe_hit)
-	pipe.get_node("BottomPipe").body_entered.connect(_on_pipe_hit)
-
-func _on_pipe_hit(body: Node2D) -> void:
-	if body.is_in_group("player"):
-		bird.die()
 
 func _on_bird_died() -> void:
 	current_state = GameState.GAME_OVER

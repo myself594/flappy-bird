@@ -36,7 +36,14 @@ func _physics_process(delta: float) -> void:
 	
 	# 移动
 	move_and_slide()
-	
+
+	# 检测与管道/地面的碰撞
+	for i in get_slide_collision_count():
+		var collider = get_slide_collision(i).get_collider()
+		if collider is StaticBody2D:
+			die()
+			return
+
 	# 旋转效果：根据垂直速度旋转小鸟
 	var target_rotation = clamp(velocity.y / 500.0, -0.5, 1.2)
 	rotation = lerp(rotation, target_rotation, 10.0 * delta)
