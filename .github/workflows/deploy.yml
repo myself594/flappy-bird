@@ -76,6 +76,11 @@ jobs:
             仓库: ${{ github.repository }}
             分支: ${{ github.ref_name }}
             状态: ${{ job.status }}
-            提交: ${{ github.sha }}
+
+            最新提交:
+            - SHA: ${{ github.sha }}
+            - 作者: ${{ github.event.head_commit.author.name }}
+            - 时间: ${{ github.event.head_commit.timestamp }}
+            - 信息: ${{ github.event.head_commit.message }}
 
             ${{ job.status == 'success' && '🎉 游戏已部署到: https://myself594.github.io/flappy-bird' || '❌ 部署失败，请检查 Actions 日志' }}
