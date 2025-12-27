@@ -1,8 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://main001"]
+[gd_scene load_steps=6 format=3 uid="uid://main001"]
 
 [ext_resource type="Script" path="res://scripts/game_manager.gd" id="1_manager"]
 [ext_resource type="Script" path="res://scripts/player.gd" id="2_player"]
-[ext_resource type="FontFile" path="res://fonts/NotoSansCJKsc-Regular.otf" id="3_font"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 24.0
@@ -125,7 +124,6 @@ offset_left = 20.0
 offset_top = 20.0
 offset_right = 220.0
 offset_bottom = 45.0
-theme_override_styles/fill = null
 max_value = 100.0
 value = 100.0
 show_percentage = false
@@ -135,7 +133,6 @@ offset_left = 230.0
 offset_top = 20.0
 offset_right = 350.0
 offset_bottom = 45.0
-theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 20
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -147,24 +144,22 @@ offset_left = 20.0
 offset_top = 55.0
 offset_right = 200.0
 offset_bottom = 80.0
-theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 18
 theme_override_colors/font_color = Color(1, 0.8, 0.3, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 3
-text = "第 0 / 3 波"
+text = "Wave 0 / 3"
 
 [node name="KillsLabel" type="Label" parent="UI"]
 offset_left = 1100.0
 offset_top = 20.0
 offset_right = 1260.0
 offset_bottom = 50.0
-theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 20
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 3
-text = "击杀: 0"
+text = "Kills: 0"
 horizontal_alignment = 2
 
 [node name="TitleLabel" type="Label" parent="UI"]
@@ -172,7 +167,6 @@ offset_left = 0.0
 offset_top = 200.0
 offset_right = 1280.0
 offset_bottom = 280.0
-theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 56
 theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -185,13 +179,12 @@ offset_left = 0.0
 offset_top = 400.0
 offset_right = 1280.0
 offset_bottom = 480.0
-theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 24
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
-text = "点击开始游戏
-WASD移动 | Shift/空格冲刺 | 鼠标攻击"
+text = "Click to Start
+WASD Move | Shift/Space Dash | Mouse Attack"
 horizontal_alignment = 1
 
 [node name="ResultLabel" type="Label" parent="UI"]
@@ -200,12 +193,11 @@ offset_left = 0.0
 offset_top = 300.0
 offset_right = 1280.0
 offset_bottom = 360.0
-theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 48
 theme_override_colors/font_color = Color(0.9, 0.2, 0.2, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 5
-text = "游戏结束"
+text = "Game Over"
 horizontal_alignment = 1
 
 [connection signal="timeout" from="Player/DashTimer" to="Player" method="_on_dash_timer_timeout"]
