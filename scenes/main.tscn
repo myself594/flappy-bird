@@ -1,7 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://main001"]
+[gd_scene load_steps=8 format=3 uid="uid://main001"]
 
 [ext_resource type="Script" path="res://scripts/game_manager.gd" id="1_manager"]
 [ext_resource type="Script" path="res://scripts/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/virtual_joystick.gd" id="3_joystick"]
+[ext_resource type="Script" path="res://scripts/virtual_button.gd" id="4_button"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 24.0
@@ -183,8 +185,7 @@ theme_override_font_sizes/font_size = 24
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
-text = "Click to Start
-WASD Move | Shift/Space Dash | Mouse Attack"
+text = "Tap to Start"
 horizontal_alignment = 1
 
 [node name="ResultLabel" type="Label" parent="UI"]
@@ -200,7 +201,91 @@ theme_override_constants/outline_size = 5
 text = "Game Over"
 horizontal_alignment = 1
 
+[node name="TouchControls" type="Control" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Joystick" type="Control" parent="UI/TouchControls"]
+custom_minimum_size = Vector2(150, 150)
+offset_left = 30.0
+offset_top = 540.0
+offset_right = 180.0
+offset_bottom = 690.0
+script = ExtResource("3_joystick")
+
+[node name="Base" type="ColorRect" parent="UI/TouchControls/Joystick"]
+custom_minimum_size = Vector2(150, 150)
+offset_right = 150.0
+offset_bottom = 150.0
+color = Color(0.2, 0.2, 0.2, 0.5)
+
+[node name="Knob" type="ColorRect" parent="UI/TouchControls/Joystick/Base"]
+custom_minimum_size = Vector2(60, 60)
+offset_left = 45.0
+offset_top = 45.0
+offset_right = 105.0
+offset_bottom = 105.0
+color = Color(0.5, 0.5, 0.5, 0.8)
+
+[node name="AttackButton" type="Control" parent="UI/TouchControls"]
+custom_minimum_size = Vector2(90, 90)
+offset_left = 1100.0
+offset_top = 580.0
+offset_right = 1190.0
+offset_bottom = 670.0
+script = ExtResource("4_button")
+
+[node name="Background" type="ColorRect" parent="UI/TouchControls/AttackButton"]
+custom_minimum_size = Vector2(90, 90)
+offset_right = 90.0
+offset_bottom = 90.0
+color = Color(0.8, 0.2, 0.2, 0.7)
+
+[node name="Label" type="Label" parent="UI/TouchControls/AttackButton/Background"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 20
+text = "ATK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DashButton" type="Control" parent="UI/TouchControls"]
+custom_minimum_size = Vector2(90, 90)
+offset_left = 990.0
+offset_top = 580.0
+offset_right = 1080.0
+offset_bottom = 670.0
+script = ExtResource("4_button")
+
+[node name="Background" type="ColorRect" parent="UI/TouchControls/DashButton"]
+custom_minimum_size = Vector2(90, 90)
+offset_right = 90.0
+offset_bottom = 90.0
+color = Color(0.2, 0.5, 0.8, 0.7)
+
+[node name="Label" type="Label" parent="UI/TouchControls/DashButton/Background"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 20
+text = "DASH"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [connection signal="timeout" from="Player/DashTimer" to="Player" method="_on_dash_timer_timeout"]
 [connection signal="timeout" from="Player/DashCooldownTimer" to="Player" method="_on_dash_cooldown_timer_timeout"]
 [connection signal="timeout" from="Player/AttackCooldownTimer" to="Player" method="_on_attack_cooldown_timer_timeout"]
 [connection signal="timeout" from="Player/InvincibilityTimer" to="Player" method="_on_invincibility_timer_timeout"]
+[connection signal="joystick_input" from="UI/TouchControls/Joystick" to="." method="_on_joystick_input"]
+[connection signal="button_pressed" from="UI/TouchControls/AttackButton" to="." method="_on_attack_button_pressed"]
+[connection signal="button_pressed" from="UI/TouchControls/DashButton" to="." method="_on_dash_button_pressed"]

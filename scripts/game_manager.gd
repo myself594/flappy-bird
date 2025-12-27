@@ -28,6 +28,7 @@ var total_kills: int = 0
 @onready var title_label: Label = $UI/TitleLabel
 @onready var hint_label: Label = $UI/HintLabel
 @onready var result_label: Label = $UI/ResultLabel
+@onready var touch_controls: Control = $UI/TouchControls
 
 # Arena bounds
 var arena_bounds: Rect2 = Rect2(100, 100, 1080, 520)
@@ -49,11 +50,20 @@ func _process(_delta: float) -> void:
 			if Input.is_action_just_pressed("attack") or Input.is_action_just_pressed("dash"):
 				restart_game()
 
+func _input(event: InputEvent) -> void:
+	# Handle touch for starting/restarting game
+	if event is InputEventScreenTouch and event.pressed:
+		if current_state == GameState.READY:
+			start_game()
+		elif current_state == GameState.GAME_OVER or current_state == GameState.VICTORY:
+			restart_game()
+
 func show_start_screen() -> void:
 	title_label.visible = true
 	hint_label.visible = true
-	hint_label.text = "Click to Start\nWASD Move | Shift/Space Dash | Mouse Attack"
+	hint_label.text = "Tap to Start"
 	result_label.visible = false
+	touch_controls.visible = false
 
 func start_game() -> void:
 	current_state = GameState.PLAYING
@@ -64,6 +74,7 @@ func start_game() -> void:
 	title_label.visible = false
 	hint_label.visible = false
 	result_label.visible = false
+	touch_controls.visible = true
 
 	player.reset()
 	player.global_position = Vector2(640, 360)
@@ -144,7 +155,8 @@ func game_over() -> void:
 	result_label.text = "Game Over"
 	result_label.modulate = Color(0.9, 0.2, 0.2)
 	hint_label.visible = true
-	hint_label.text = "Click to Restart"
+	hint_label.text = "Tap to Restart"
+	touch_controls.visible = false
 
 func victory() -> void:
 	current_state = GameState.VICTORY
@@ -152,7 +164,8 @@ func victory() -> void:
 	result_label.text = "Victory!"
 	result_label.modulate = Color(0.2, 0.9, 0.3)
 	hint_label.visible = true
-	hint_label.text = "Click to Restart\nTotal Kills: %d" % total_kills
+	hint_label.text = "Tap to Restart\nTotal Kills: %d" % total_kills
+	touch_controls.visible = false
 
 func restart_game() -> void:
 	for enemy in enemies_container.get_children():
@@ -168,3 +181,16 @@ func restart_game() -> void:
 func update_ui() -> void:
 	wave_label.text = "Wave 0 / %d" % waves.size()
 	kills_label.text = "Kills: 0"
+
+# Touch control callbacks
+func _on_joystick_input(direction: Vector2) -> void:
+	if current_state == GameState.PLAYING:
+		player.set_touch_move(direction)
+
+func _on_attack_button_pressed() -> void:
+	if current_state == GameState.PLAYING:
+		player.trigger_touch_attack()
+
+func _on_dash_button_pressed() -> void:
+	if current_state == GameState.PLAYING:
+		player.trigger_touch_dash()
