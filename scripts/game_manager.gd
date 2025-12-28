@@ -32,15 +32,15 @@ var total_kills: int = 0
 
 # Spawn positions for platformer (on platforms/ground)
 var spawn_positions: Array[Vector2] = [
-	Vector2(100, 650),    # Left ground
-	Vector2(1180, 650),   # Right ground
-	Vector2(300, 520),    # Platform 1
-	Vector2(640, 420),    # Platform 2
-	Vector2(980, 520),    # Platform 3
+	Vector2(100, 660),    # Left ground
+	Vector2(1180, 660),   # Right ground
+	Vector2(250, 380),    # Platform 1 (left elevated)
+	Vector2(640, 490),    # Platform 2 (center pillar)
+	Vector2(1030, 380),   # Platform 3 (right elevated)
 ]
 
 # Player start position
-var player_start_pos: Vector2 = Vector2(200, 650)
+var player_start_pos: Vector2 = Vector2(200, 660)
 
 func _ready() -> void:
 	player.add_to_group("player")
