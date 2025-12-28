@@ -45,7 +45,7 @@ var touch_dash_pressed: bool = false
 var touch_jump_pressed: bool = false
 
 # Node references
-@onready var sprite: Polygon2D = $Sprite
+@onready var sprite: Sprite2D = $Sprite
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var attack_area: Area2D = $AttackArea
 @onready var dash_timer: Timer = $DashTimer
@@ -86,12 +86,12 @@ func _physics_process(delta: float) -> void:
 		# Update facing direction and attack area position
 		if input_dir > 0:
 			facing_right = true
-			sprite.scale.x = 1
-			attack_area.position.x = 50
+			sprite.flip_h = false
+			attack_area.position.x = 60
 		elif input_dir < 0:
 			facing_right = false
-			sprite.scale.x = -1
-			attack_area.position.x = -50
+			sprite.flip_h = true
+			attack_area.position.x = -60
 
 	move_and_slide()
 	handle_input()

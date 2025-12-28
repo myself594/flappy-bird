@@ -1,16 +1,17 @@
-[gd_scene load_steps=10 format=3 uid="uid://main001"]
+[gd_scene load_steps=11 format=3 uid="uid://main001"]
 
 [ext_resource type="Script" path="res://scripts/game_manager.gd" id="1_manager"]
 [ext_resource type="Script" path="res://scripts/player.gd" id="2_player"]
 [ext_resource type="Script" path="res://scripts/virtual_joystick.gd" id="3_joystick"]
 [ext_resource type="Script" path="res://scripts/virtual_button.gd" id="4_button"]
 [ext_resource type="Texture2D" path="res://assets/images/scene_background.jpg" id="5_background"]
+[ext_resource type="Texture2D" path="res://assets/images/warrior.png" id="6_warrior"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
-radius = 20.0
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(30, 65)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
-size = Vector2(80, 60)
+size = Vector2(100, 50)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1280, 40)
@@ -60,15 +61,16 @@ collision_mask = 50
 
 script = ExtResource("2_player")
 
-[node name="Sprite" type="Polygon2D" parent="Player"]
-color = Color(0.2, 0.7, 0.4, 1)
-polygon = PackedVector2Array(-16, -24, 16, -24, 16, 20, -16, 20)
+[node name="Sprite" type="Sprite2D" parent="Player"]
+position = Vector2(-15, -5)
+scale = Vector2(0.15, 0.15)
+texture = ExtResource("6_warrior")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
-shape = SubResource("CircleShape2D_body")
+shape = SubResource("RectangleShape2D_body")
 
 [node name="AttackArea" type="Area2D" parent="Player"]
-position = Vector2(50, 0)
+position = Vector2(60, 0)
 collision_layer = 4
 collision_mask = 2
 monitoring = false
