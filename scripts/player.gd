@@ -5,9 +5,13 @@ signal health_changed(current_health, max_health)
 
 # Movement parameters
 @export var move_speed: float = 250.0
-@export var jump_force: float = -450.0
-@export var gravity: float = 1200.0
+@export var jump_force: float = -420.0
+@export var gravity: float = 1100.0
 @export var max_fall_speed: float = 600.0
+
+# Double jump
+@export var max_jumps: int = 2
+var jumps_remaining: int = 2
 
 # Dash parameters
 @export var dash_speed: float = 500.0
@@ -17,7 +21,8 @@ signal health_changed(current_health, max_health)
 # Combat parameters
 @export var max_health: int = 100
 @export var attack_damage: int = 25
-@export var attack_cooldown: float = 0.35
+@export var attack_cooldown: float = 0.3
+@export var pogo_force: float = -350.0  # Bounce force when down-attacking enemy
 
 # State
 var current_health: int
@@ -28,12 +33,15 @@ var is_dead: bool = false
 var dash_direction: Vector2 = Vector2.ZERO
 var facing_right: bool = true
 
+# Attack direction
+enum AttackDir { LEFT, RIGHT, UP, DOWN }
+var current_attack_dir: AttackDir = AttackDir.RIGHT
+
 # Jump state
 var coyote_time: float = 0.1
 var coyote_timer: float = 0.0
 var jump_buffer_time: float = 0.1
 var jump_buffer_timer: float = 0.0
-var can_jump: bool = true
 
 # Touch input
 var touch_move_direction: Vector2 = Vector2.ZERO
@@ -45,6 +53,7 @@ var touch_jump_pressed: bool = false
 @onready var sprite: Polygon2D = $Sprite
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var attack_area: Area2D = $AttackArea
+@onready var attack_shape: CollisionShape2D = $AttackArea/AttackShape
 @onready var dash_timer: Timer = $DashTimer
 @onready var dash_cooldown_timer: Timer = $DashCooldownTimer
 @onready var attack_cooldown_timer: Timer = $AttackCooldownTimer
@@ -67,6 +76,7 @@ func _physics_process(delta: float) -> void:
 			coyote_timer -= delta
 		else:
 			coyote_timer = coyote_time
+			jumps_remaining = max_jumps  # Reset jumps when on ground
 
 	# Handle jump buffer
 	if jump_buffer_timer > 0:
@@ -83,24 +93,51 @@ func _physics_process(delta: float) -> void:
 		if input_dir > 0:
 			facing_right = true
 			sprite.scale.x = 1
-			attack_area.scale.x = 1
 		elif input_dir < 0:
 			facing_right = false
 			sprite.scale.x = -1
-			attack_area.scale.x = -1
 
 	move_and_slide()
 	handle_input()
+	update_attack_direction()
 
 func get_horizontal_input() -> float:
-	# Keyboard input
 	var input_dir = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
 
-	# Touch joystick input (only horizontal)
 	if abs(touch_move_direction.x) > 0.1:
 		input_dir = touch_move_direction.x
 
 	return input_dir
+
+func get_vertical_input() -> float:
+	var input_dir = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
+
+	if abs(touch_move_direction.y) > 0.1:
+		input_dir = touch_move_direction.y
+
+	return input_dir
+
+func update_attack_direction() -> void:
+	var h_input = get_horizontal_input()
+	var v_input = get_vertical_input()
+
+	# Priority: Up/Down > Left/Right
+	if v_input < -0.5:
+		current_attack_dir = AttackDir.UP
+		attack_area.position = Vector2(0, -50)
+		attack_area.rotation = 0
+	elif v_input > 0.5 and not is_on_floor():
+		current_attack_dir = AttackDir.DOWN
+		attack_area.position = Vector2(0, 50)
+		attack_area.rotation = 0
+	elif facing_right:
+		current_attack_dir = AttackDir.RIGHT
+		attack_area.position = Vector2(50, 0)
+		attack_area.rotation = 0
+	else:
+		current_attack_dir = AttackDir.LEFT
+		attack_area.position = Vector2(-50, 0)
+		attack_area.rotation = 0
 
 func handle_input() -> void:
 	# Jump (keyboard or touch)
@@ -109,11 +146,15 @@ func handle_input() -> void:
 		jump_buffer_timer = jump_buffer_time
 		touch_jump_pressed = false
 
-	# Execute jump if buffered and can jump
+	# Execute jump - ground jump with coyote time
 	if jump_buffer_timer > 0 and (is_on_floor() or coyote_timer > 0):
 		perform_jump()
 		jump_buffer_timer = 0
 		coyote_timer = 0
+	# Double jump in air
+	elif jump_buffer_timer > 0 and jumps_remaining > 0 and not is_on_floor():
+		perform_jump()
+		jump_buffer_timer = 0
 
 	# Dash (keyboard or touch)
 	var dash_input = Input.is_action_just_pressed("dash") or touch_dash_pressed
@@ -129,8 +170,9 @@ func handle_input() -> void:
 
 func perform_jump() -> void:
 	velocity.y = jump_force
+	jumps_remaining -= 1
 
-# Touch input setters (called from UI)
+# Touch input setters
 func set_touch_move(direction: Vector2) -> void:
 	touch_move_direction = direction
 
@@ -154,7 +196,7 @@ func start_dash() -> void:
 	is_dashing = true
 	can_dash = false
 	set_invincible(true)
-	velocity.y = 0  # Cancel vertical velocity during dash
+	velocity.y = 0
 	dash_timer.start(dash_duration)
 
 func _on_dash_timer_timeout() -> void:
@@ -169,10 +211,17 @@ func perform_attack() -> void:
 	can_attack = false
 	attack_area.monitoring = true
 
+	var hit_enemy = false
 	var enemies_in_range = attack_area.get_overlapping_bodies()
 	for enemy in enemies_in_range:
 		if enemy.is_in_group("enemies"):
 			enemy.take_damage(attack_damage)
+			hit_enemy = true
+
+	# Pogo bounce - if down attacking and hit enemy
+	if current_attack_dir == AttackDir.DOWN and hit_enemy:
+		velocity.y = pogo_force
+		jumps_remaining = max_jumps  # Reset double jump after pogo
 
 	await get_tree().create_timer(0.1).timeout
 	attack_area.monitoring = false
@@ -235,3 +284,4 @@ func reset() -> void:
 	touch_move_direction = Vector2.ZERO
 	facing_right = true
 	velocity = Vector2.ZERO
+	jumps_remaining = max_jumps
