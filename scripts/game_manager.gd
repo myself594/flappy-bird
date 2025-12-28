@@ -2,6 +2,9 @@ extends Node2D
 
 enum GameState { READY, PLAYING, VICTORY, GAME_OVER }
 
+# Debug settings
+@export var debug_show_collisions: bool = true  # 显示碰撞体（开发调试用）
+
 # Wave configuration
 @export var waves: Array[int] = [3, 4, 5]
 @export var spawn_delay: float = 0.5
@@ -49,6 +52,37 @@ func _ready() -> void:
 
 	update_ui()
 	show_start_screen()
+
+	# 调试模式：显示碰撞体
+	if debug_show_collisions:
+		show_collision_shapes()
+
+func show_collision_shapes() -> void:
+	# 为Arena中的所有碰撞体添加可视化
+	for body in arena.get_children():
+		if body is StaticBody2D:
+			for child in body.get_children():
+				if child is CollisionShape2D:
+					add_collision_visual(child)
+
+func add_collision_visual(collision_shape: CollisionShape2D) -> void:
+	var shape = collision_shape.shape
+	var visual = ColorRect.new()
+	visual.name = "DebugVisual"
+
+	if shape is RectangleShape2D:
+		var size = shape.size
+		visual.size = size
+		visual.position = -size / 2
+	elif shape is CircleShape2D:
+		# 用方形近似圆形显示
+		var diameter = shape.radius * 2
+		visual.size = Vector2(diameter, diameter)
+		visual.position = Vector2(-shape.radius, -shape.radius)
+
+	# 半透明绿色边框效果
+	visual.color = Color(0, 1, 0, 0.3)
+	collision_shape.add_child(visual)
 
 func _process(_delta: float) -> void:
 	match current_state:
