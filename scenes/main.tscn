@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://main001"]
+[gd_scene load_steps=10 format=3 uid="uid://main001"]
 
 [ext_resource type="Script" path="res://scripts/game_manager.gd" id="1_manager"]
 [ext_resource type="Script" path="res://scripts/player.gd" id="2_player"]
@@ -15,9 +15,6 @@ size = Vector2(80, 60)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1280, 40)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_platform"]
-size = Vector2(200, 20)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(40, 720)
 
@@ -33,36 +30,12 @@ stretch_mode = 5
 [node name="Arena" type="Node2D" parent="."]
 
 [node name="Ground" type="StaticBody2D" parent="Arena"]
-position = Vector2(640, 690)
+position = Vector2(640, 630)
 collision_layer = 48
 collision_mask = 0
 
 [node name="CollisionShape" type="CollisionShape2D" parent="Arena/Ground"]
 shape = SubResource("RectangleShape2D_ground")
-
-[node name="Platform1" type="StaticBody2D" parent="Arena"]
-position = Vector2(250, 410)
-collision_layer = 48
-collision_mask = 0
-
-[node name="CollisionShape" type="CollisionShape2D" parent="Arena/Platform1"]
-shape = SubResource("RectangleShape2D_platform")
-
-[node name="Platform2" type="StaticBody2D" parent="Arena"]
-position = Vector2(640, 520)
-collision_layer = 48
-collision_mask = 0
-
-[node name="CollisionShape" type="CollisionShape2D" parent="Arena/Platform2"]
-shape = SubResource("RectangleShape2D_platform")
-
-[node name="Platform3" type="StaticBody2D" parent="Arena"]
-position = Vector2(1030, 410)
-collision_layer = 48
-collision_mask = 0
-
-[node name="CollisionShape" type="CollisionShape2D" parent="Arena/Platform3"]
-shape = SubResource("RectangleShape2D_platform")
 
 [node name="WallLeft" type="StaticBody2D" parent="Arena"]
 position = Vector2(-20, 360)
@@ -81,7 +54,7 @@ collision_mask = 0
 shape = SubResource("RectangleShape2D_wall")
 
 [node name="Player" type="CharacterBody2D" parent="." groups=["player"]]
-position = Vector2(200, 660)
+position = Vector2(200, 600)
 collision_layer = 1
 collision_mask = 50
 

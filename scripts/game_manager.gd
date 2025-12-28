@@ -33,17 +33,17 @@ var total_kills: int = 0
 @onready var result_label: Label = $UI/ResultLabel
 @onready var touch_controls: Control = $UI/TouchControls
 
-# Spawn positions for platformer (on platforms/ground)
+# Spawn positions for flat arena (ground level)
 var spawn_positions: Array[Vector2] = [
-	Vector2(100, 660),    # Left ground
-	Vector2(1180, 660),   # Right ground
-	Vector2(250, 380),    # Platform 1 (left elevated)
-	Vector2(640, 490),    # Platform 2 (center pillar)
-	Vector2(1030, 380),   # Platform 3 (right elevated)
+	Vector2(100, 600),    # Left side
+	Vector2(400, 600),    # Left-center
+	Vector2(640, 600),    # Center
+	Vector2(880, 600),    # Right-center
+	Vector2(1180, 600),   # Right side
 ]
 
 # Player start position
-var player_start_pos: Vector2 = Vector2(200, 660)
+var player_start_pos: Vector2 = Vector2(200, 600)
 
 func _ready() -> void:
 	player.add_to_group("player")
