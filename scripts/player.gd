@@ -4,17 +4,20 @@ signal died
 signal health_changed(current_health, max_health)
 
 # Movement parameters
-@export var move_speed: float = 300.0
-@export var dash_speed: float = 800.0
+@export var move_speed: float = 250.0
+@export var jump_force: float = -450.0
+@export var gravity: float = 1200.0
+@export var max_fall_speed: float = 600.0
+
+# Dash parameters
+@export var dash_speed: float = 500.0
 @export var dash_duration: float = 0.15
 @export var dash_cooldown: float = 0.5
 
 # Combat parameters
 @export var max_health: int = 100
-@export var attack_damage: int = 20
-@export var attack_range: float = 80.0
-@export var attack_angle: float = 90.0
-@export var attack_cooldown: float = 0.3
+@export var attack_damage: int = 25
+@export var attack_cooldown: float = 0.35
 
 # State
 var current_health: int
@@ -23,12 +26,20 @@ var can_dash: bool = true
 var can_attack: bool = true
 var is_dead: bool = false
 var dash_direction: Vector2 = Vector2.ZERO
+var facing_right: bool = true
+
+# Jump state
+var coyote_time: float = 0.1
+var coyote_timer: float = 0.0
+var jump_buffer_time: float = 0.1
+var jump_buffer_timer: float = 0.0
+var can_jump: bool = true
 
 # Touch input
 var touch_move_direction: Vector2 = Vector2.ZERO
 var touch_attack_pressed: bool = false
 var touch_dash_pressed: bool = false
-var last_move_direction: Vector2 = Vector2.RIGHT
+var touch_jump_pressed: bool = false
 
 # Node references
 @onready var sprite: Polygon2D = $Sprite
@@ -48,38 +59,62 @@ func _physics_process(delta: float) -> void:
 	if is_dead:
 		return
 
+	# Apply gravity
+	if not is_dashing:
+		if not is_on_floor():
+			velocity.y += gravity * delta
+			velocity.y = min(velocity.y, max_fall_speed)
+			coyote_timer -= delta
+		else:
+			coyote_timer = coyote_time
+
+	# Handle jump buffer
+	if jump_buffer_timer > 0:
+		jump_buffer_timer -= delta
+
 	if is_dashing:
 		velocity = dash_direction * dash_speed
 	else:
-		# Get input direction (keyboard + touch)
-		var input_dir = get_movement_input()
-
-		if input_dir.length() > 1.0:
-			input_dir = input_dir.normalized()
-
-		velocity = input_dir * move_speed
+		# Horizontal movement
+		var input_dir = get_horizontal_input()
+		velocity.x = input_dir * move_speed
 
 		# Update facing direction
-		if input_dir.length() > 0.1:
-			last_move_direction = input_dir.normalized()
-			rotation = input_dir.angle()
+		if input_dir > 0:
+			facing_right = true
+			sprite.scale.x = 1
+			attack_area.scale.x = 1
+		elif input_dir < 0:
+			facing_right = false
+			sprite.scale.x = -1
+			attack_area.scale.x = -1
 
 	move_and_slide()
 	handle_input()
 
-func get_movement_input() -> Vector2:
+func get_horizontal_input() -> float:
 	# Keyboard input
-	var input_dir = Vector2.ZERO
-	input_dir.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
-	input_dir.y = Input.get_action_strength("move_down") - Input.get_action_strength("move_up")
+	var input_dir = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
 
-	# Add touch joystick input
-	if touch_move_direction.length() > 0.1:
-		input_dir = touch_move_direction
+	# Touch joystick input (only horizontal)
+	if abs(touch_move_direction.x) > 0.1:
+		input_dir = touch_move_direction.x
 
 	return input_dir
 
 func handle_input() -> void:
+	# Jump (keyboard or touch)
+	var jump_input = Input.is_action_just_pressed("jump") or touch_jump_pressed
+	if jump_input:
+		jump_buffer_timer = jump_buffer_time
+		touch_jump_pressed = false
+
+	# Execute jump if buffered and can jump
+	if jump_buffer_timer > 0 and (is_on_floor() or coyote_timer > 0):
+		perform_jump()
+		jump_buffer_timer = 0
+		coyote_timer = 0
+
 	# Dash (keyboard or touch)
 	var dash_input = Input.is_action_just_pressed("dash") or touch_dash_pressed
 	if dash_input and can_dash and not is_dashing:
@@ -92,6 +127,9 @@ func handle_input() -> void:
 		perform_attack()
 		touch_attack_pressed = false
 
+func perform_jump() -> void:
+	velocity.y = jump_force
+
 # Touch input setters (called from UI)
 func set_touch_move(direction: Vector2) -> void:
 	touch_move_direction = direction
@@ -102,17 +140,21 @@ func trigger_touch_attack() -> void:
 func trigger_touch_dash() -> void:
 	touch_dash_pressed = true
 
-func start_dash() -> void:
-	var input_dir = get_movement_input()
+func trigger_touch_jump() -> void:
+	touch_jump_pressed = true
 
-	if input_dir.length() > 0:
-		dash_direction = input_dir.normalized()
+func start_dash() -> void:
+	var input_dir = get_horizontal_input()
+
+	if input_dir != 0:
+		dash_direction = Vector2(input_dir, 0).normalized()
 	else:
-		dash_direction = last_move_direction
+		dash_direction = Vector2(1 if facing_right else -1, 0)
 
 	is_dashing = true
 	can_dash = false
 	set_invincible(true)
+	velocity.y = 0  # Cancel vertical velocity during dash
 	dash_timer.start(dash_duration)
 
 func _on_dash_timer_timeout() -> void:
@@ -130,12 +172,7 @@ func perform_attack() -> void:
 	var enemies_in_range = attack_area.get_overlapping_bodies()
 	for enemy in enemies_in_range:
 		if enemy.is_in_group("enemies"):
-			var to_enemy = (enemy.global_position - global_position).normalized()
-			var facing = Vector2.RIGHT.rotated(rotation)
-			var angle_to_enemy = rad_to_deg(facing.angle_to(to_enemy))
-
-			if abs(angle_to_enemy) <= attack_angle / 2:
-				enemy.take_damage(attack_damage)
+			enemy.take_damage(attack_damage)
 
 	await get_tree().create_timer(0.1).timeout
 	attack_area.monitoring = false
@@ -155,6 +192,10 @@ func take_damage(amount: int) -> void:
 	set_invincible(true)
 	invincibility_timer.start(0.5)
 	flash_damage()
+
+	# Knockback
+	velocity.y = -200
+	velocity.x = 200 if not facing_right else -200
 
 	if current_health <= 0:
 		die()
@@ -192,4 +233,5 @@ func reset() -> void:
 	can_attack = true
 	is_dashing = false
 	touch_move_direction = Vector2.ZERO
-	last_move_direction = Vector2.RIGHT
+	facing_right = true
+	velocity = Vector2.ZERO

@@ -30,8 +30,17 @@ var total_kills: int = 0
 @onready var result_label: Label = $UI/ResultLabel
 @onready var touch_controls: Control = $UI/TouchControls
 
-# Arena bounds
-var arena_bounds: Rect2 = Rect2(100, 100, 1080, 520)
+# Spawn positions for platformer (on platforms/ground)
+var spawn_positions: Array[Vector2] = [
+	Vector2(100, 650),    # Left ground
+	Vector2(1180, 650),   # Right ground
+	Vector2(300, 520),    # Platform 1
+	Vector2(640, 420),    # Platform 2
+	Vector2(980, 520),    # Platform 3
+]
+
+# Player start position
+var player_start_pos: Vector2 = Vector2(200, 650)
 
 func _ready() -> void:
 	player.add_to_group("player")
@@ -44,10 +53,10 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	match current_state:
 		GameState.READY:
-			if Input.is_action_just_pressed("attack") or Input.is_action_just_pressed("dash"):
+			if Input.is_action_just_pressed("attack") or Input.is_action_just_pressed("jump"):
 				start_game()
 		GameState.GAME_OVER, GameState.VICTORY:
-			if Input.is_action_just_pressed("attack") or Input.is_action_just_pressed("dash"):
+			if Input.is_action_just_pressed("attack") or Input.is_action_just_pressed("jump"):
 				restart_game()
 
 func _input(event: InputEvent) -> void:
@@ -77,7 +86,7 @@ func start_game() -> void:
 	touch_controls.visible = true
 
 	player.reset()
-	player.global_position = Vector2(640, 360)
+	player.global_position = player_start_pos
 
 	for enemy in enemies_container.get_children():
 		enemy.queue_free()
@@ -115,21 +124,18 @@ func spawn_enemy() -> void:
 	enemies_alive += 1
 
 func get_random_spawn_position() -> Vector2:
-	var side = randi() % 4
-	var pos = Vector2.ZERO
-	var margin = 50
+	# Pick a random spawn position from predefined spots
+	var valid_positions: Array[Vector2] = []
 
-	match side:
-		0:  # Top
-			pos = Vector2(randf_range(arena_bounds.position.x, arena_bounds.end.x), arena_bounds.position.y + margin)
-		1:  # Bottom
-			pos = Vector2(randf_range(arena_bounds.position.x, arena_bounds.end.x), arena_bounds.end.y - margin)
-		2:  # Left
-			pos = Vector2(arena_bounds.position.x + margin, randf_range(arena_bounds.position.y, arena_bounds.end.y))
-		3:  # Right
-			pos = Vector2(arena_bounds.end.x - margin, randf_range(arena_bounds.position.y, arena_bounds.end.y))
+	for pos in spawn_positions:
+		# Don't spawn too close to player
+		if pos.distance_to(player.global_position) > 200:
+			valid_positions.append(pos)
 
-	return pos
+	if valid_positions.size() > 0:
+		return valid_positions[randi() % valid_positions.size()]
+	else:
+		return spawn_positions[randi() % spawn_positions.size()]
 
 func _on_enemy_died() -> void:
 	enemies_alive -= 1
@@ -175,7 +181,7 @@ func restart_game() -> void:
 	show_start_screen()
 
 	player.reset()
-	player.global_position = Vector2(640, 360)
+	player.global_position = player_start_pos
 	update_ui()
 
 func update_ui() -> void:
@@ -186,6 +192,10 @@ func update_ui() -> void:
 func _on_joystick_input(direction: Vector2) -> void:
 	if current_state == GameState.PLAYING:
 		player.set_touch_move(direction)
+
+func _on_jump_button_pressed() -> void:
+	if current_state == GameState.PLAYING:
+		player.trigger_touch_jump()
 
 func _on_attack_button_pressed() -> void:
 	if current_state == GameState.PLAYING:
