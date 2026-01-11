@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/virtual_joystick.gd" id="3_joystick"]
 [ext_resource type="Script" path="res://scripts/virtual_button.gd" id="4_button"]
 [ext_resource type="Texture2D" path="res://assets/images/scene_background.jpg" id="5_background"]
-[ext_resource type="Texture2D" path="res://assets/images/warrior.png" id="6_warrior"]
+[ext_resource type="SpriteFrames" path="res://assets/warrior_frames.tres" id="6_frames"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(30, 65)
@@ -61,10 +61,12 @@ collision_mask = 50
 
 script = ExtResource("2_player")
 
-[node name="Sprite" type="Sprite2D" parent="Player"]
-position = Vector2(-15, -5)
-scale = Vector2(0.15, 0.15)
-texture = ExtResource("6_warrior")
+[node name="Sprite" type="AnimatedSprite2D" parent="Player"]
+position = Vector2(0, -20)
+scale = Vector2(0.25, 0.25)
+sprite_frames = ExtResource("6_frames")
+animation = &"idle"
+autoplay = "idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 shape = SubResource("RectangleShape2D_body")

@@ -44,8 +44,12 @@ var touch_attack_pressed: bool = false
 var touch_dash_pressed: bool = false
 var touch_jump_pressed: bool = false
 
+# Animation state
+var is_attacking: bool = false
+var is_hurt: bool = false
+
 # Node references
-@onready var sprite: Sprite2D = $Sprite
+@onready var sprite: AnimatedSprite2D = $Sprite
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var attack_area: Area2D = $AttackArea
 @onready var dash_timer: Timer = $DashTimer
@@ -57,6 +61,7 @@ func _ready() -> void:
 	current_health = max_health
 	health_changed.emit(current_health, max_health)
 	attack_area.monitoring = false
+	sprite.animation_finished.connect(_on_animation_finished)
 
 func _physics_process(delta: float) -> void:
 	if is_dead:
@@ -95,6 +100,7 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	handle_input()
+	update_animation()
 
 func get_horizontal_input() -> float:
 	var input_dir = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
@@ -137,6 +143,46 @@ func perform_jump() -> void:
 	velocity.y = jump_force
 	jumps_remaining -= 1
 
+func update_animation() -> void:
+	# Priority: die > hurt > attack > jump/fall > run/walk > idle
+	if is_dead:
+		if sprite.animation != "die":
+			sprite.play("die")
+		return
+
+	if is_hurt:
+		if sprite.animation != "hurt":
+			sprite.play("hurt")
+		return
+
+	if is_attacking:
+		if sprite.animation != "attack":
+			sprite.play("attack")
+		return
+
+	if not is_on_floor():
+		if sprite.animation != "jump":
+			sprite.play("jump")
+		return
+
+	var input_dir = get_horizontal_input()
+	if abs(input_dir) > 0.1:
+		if is_dashing:
+			if sprite.animation != "run":
+				sprite.play("run")
+		else:
+			if sprite.animation != "walk":
+				sprite.play("walk")
+	else:
+		if sprite.animation != "idle":
+			sprite.play("idle")
+
+func _on_animation_finished() -> void:
+	if sprite.animation == "attack":
+		is_attacking = false
+	elif sprite.animation == "hurt":
+		is_hurt = false
+
 # Touch input setters
 func set_touch_move(direction: Vector2) -> void:
 	touch_move_direction = direction
@@ -174,6 +220,7 @@ func _on_dash_cooldown_timer_timeout() -> void:
 
 func perform_attack() -> void:
 	can_attack = false
+	is_attacking = true
 	attack_area.monitoring = true
 
 	# Attack in facing direction
@@ -197,6 +244,7 @@ func take_damage(amount: int) -> void:
 	current_health = max(0, current_health)
 	health_changed.emit(current_health, max_health)
 
+	is_hurt = true
 	set_invincible(true)
 	invincibility_timer.start(0.5)
 	flash_damage()
@@ -240,8 +288,12 @@ func reset() -> void:
 	can_dash = true
 	can_attack = true
 	is_dashing = false
+	is_attacking = false
+	is_hurt = false
 	touch_move_direction = Vector2.ZERO
 	facing_right = true
+	sprite.flip_h = false
 	velocity = Vector2.ZERO
 	jumps_remaining = max_jumps
-	attack_area.position.x = 50
+	attack_area.position.x = 60
+	sprite.play("idle")
